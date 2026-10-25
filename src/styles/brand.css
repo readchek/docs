@@ -23,21 +23,65 @@
 
 :root {
   --sl-font: "DM Sans", system-ui, sans-serif;
+}
+
+/* Dark mode uses the app's dark tokens, from app/web/src/styles.css: night
+   for the page, a raised card color for the sidebar and header, and the
+   lighter accent for links so they read on night. */
+:root {
+  --sl-color-white: #fafaf7;
+  --sl-color-gray-1: #ecedf3;
+  --sl-color-gray-2: #c9cbd6;
+  --sl-color-gray-3: #9c9eac;
+  --sl-color-gray-4: #5d6070;
+  --sl-color-gray-5: #262937;
+  --sl-color-gray-6: #171922;
+  --sl-color-black: #0e0f15;
   --sl-color-accent-low: #1a2147;
   --sl-color-accent: #5b78ff;
-  --sl-color-accent-high: #c9d2ff;
-  --sl-color-black: #0e0f15;
-  --sl-color-gray-6: #171820;
+  --sl-color-accent-high: #7d93ff;
+  --sl-color-text-invert: #0e0f15;
+  --sl-color-bg-inline-code: #20232f;
+  --sl-color-hairline-light: #262937;
+  --sl-color-hairline: #20232f;
+  --sl-color-hairline-shade: #0e0f15;
+  --chek-blue: #2448e8;
+  --chek-on-blue: #fafaf7;
 }
 
 :root[data-theme="light"] {
+  --sl-color-white: #171820;
+  --sl-color-gray-1: #23242e;
+  --sl-color-gray-2: #3a3b46;
+  --sl-color-gray-3: #60616d;
+  --sl-color-gray-4: #8e909c;
+  --sl-color-gray-5: #d5d8e4;
+  --sl-color-gray-6: #eef0f8;
+  --sl-color-gray-7: #f4f5fa;
+  --sl-color-black: #fafaf7;
   --sl-color-accent-low: #dfe4fb;
   --sl-color-accent: #2448e8;
   --sl-color-accent-high: #1a34b8;
-  --sl-color-white: #171820;
-  --sl-color-black: #fafaf7;
-  --sl-color-gray-6: #eef0f8;
-  --sl-color-gray-7: #f4f5fa;
+  --sl-color-text-invert: #fafaf7;
+  --sl-color-bg-inline-code: #eef0f8;
+  --sl-color-hairline-light: #e3e5ee;
+  --sl-color-hairline: #e3e5ee;
+  --sl-color-hairline-shade: #d5d8e4;
+}
+
+/* The brand fills with electric blue and paper text in both modes, like the
+   app's buttons, rather than Starlight's pale accent in dark mode. */
+.sl-link-button.primary,
+.sl-link-button.primary:hover {
+  background: var(--chek-blue);
+  border-color: var(--chek-blue);
+  color: var(--chek-on-blue);
+}
+.sidebar-content [aria-current="page"],
+.sidebar-content [aria-current="page"]:hover,
+.sidebar-content [aria-current="page"]:focus {
+  background-color: var(--chek-blue);
+  color: var(--chek-on-blue);
 }
 
 h1,
@@ -47,4 +91,28 @@ h3,
 .hero h1 {
   font-family: Bricolage, "DM Sans", sans-serif;
   font-weight: 700;
+}
+
+/* Code blocks sit on the same surfaces as the page, so dark mode stays on
+   night instead of the code theme's grey. The selectors repeat to outrank
+   the theme's own rules. */
+:root:root .expressive-code.expressive-code {
+  --ec-codeBg: #171922;
+  --ec-brdCol: #262937;
+  --ec-frm-edBg: #171922;
+  --ec-frm-edTabBarBg: #0e0f15;
+  --ec-frm-edActTabBg: #171922;
+  --ec-frm-trmBg: #171922;
+  --ec-frm-trmTtbBg: #0e0f15;
+  --ec-frm-trmTtbBrdBtmCol: #262937;
+}
+:root:root[data-theme="light"] .expressive-code.expressive-code {
+  --ec-codeBg: #f4f5fa;
+  --ec-brdCol: #e3e5ee;
+  --ec-frm-edBg: #f4f5fa;
+  --ec-frm-edTabBarBg: #eef0f8;
+  --ec-frm-edActTabBg: #f4f5fa;
+  --ec-frm-trmBg: #f4f5fa;
+  --ec-frm-trmTtbBg: #eef0f8;
+  --ec-frm-trmTtbBrdBtmCol: #e3e5ee;
 }
