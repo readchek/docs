@@ -1,60 +1,66 @@
 ---
-title: Komga and Kavita
-description: Read a Komga or Kavita server's libraries through Chek, with progress written back.
+title: Read Komga and Kavita libraries
+description: Add a Komga or Kavita server as a Chek library, and write reading progress back to it.
 ---
 
-An admin can add a [Komga](https://komga.org) or [Kavita](https://www.kavitareader.com) server as a library. Everyone granted that library in Chek reads what one Komga or Kavita account sees, with pages and files fetched through Chek, so Komga or Kavita keeps the only copy.
+An admin can add a [Komga](https://komga.org) or [Kavita](https://www.kavitareader.com) server as a library. Everyone who has the library reads what one Komga or Kavita account can see. Chek fetches pages and files from that server on each request, so the files stay only on the Komga or Kavita server.
 
-Use an account made for Chek. Its credentials are checked before the library is added, stored on the server, and never returned by the API.
+Create an account in Komga or Kavita for Chek to use. Chek checks the credentials before it adds the library. It stores them on the server and never returns them from the API.
 
-## Komga
+## Add a Komga library
 
-The account needs Komga's **page streaming** and **file download** roles. Use an API key made in Komga for that account, or its email and password.
+The Komga account needs the page streaming role and the file download role.
 
-```sh
-curl -X POST $SERVER/api/v1/libraries \
-  -H "Authorization: Bearer $TOKEN" -H 'content-type: application/json' \
-  -d '{"name": "Komga", "komga": {"url": "http://komga:25600", "apiKey": "<key>"}}'
-```
+1. Create an API key for the account in Komga.
+2. Add the library:
 
-| Field | What it does |
-| --- | --- |
-| `url` | Komga's address, including any path it's served under |
-| `apiKey`, or `username` and `password` | The account to read with |
-| `libraryIds` | Komga library ids to read. Leave it out for every library the account sees |
-| `writeProgress` | `true` by default. Writes your reading position back to Komga |
+   ```sh
+   curl -X POST $SERVER/api/v1/libraries \
+   	-H "Authorization: Bearer $TOKEN" -H 'content-type: application/json' \
+   	-d '{"name": "Komga", "komga": {"url": "http://komga:25600", "apiKey": "<key>"}}'
+   ```
 
-A sync reads the series and the books Komga has finished analyzing, with their titles, numbers, summaries, dates, authors, publisher, language and reading direction. Komga always sends whole files, even when asked for part of one.
+The `url` is the address of Komga as the Chek container sees it, including any path that Komga is served under.
 
-## Kavita
+- To sign in with the account's email and password instead of a key, send `username` and `password`.
+- To read only some Komga libraries, send their ids in `libraryIds`.
 
-The account needs Kavita's **download** role for files. Copy its API key from the account's settings page in Kavita.
+Chek reads Komga's series and the books that Komga has finished analyzing. Komga always sends whole files, even when a reader asks for a byte range.
 
-```sh
-curl -X POST $SERVER/api/v1/libraries \
-  -H "Authorization: Bearer $TOKEN" -H 'content-type: application/json' \
-  -d '{"name": "Kavita", "kavita": {"url": "http://kavita:5000", "apiKey": "<key>"}}'
-```
+## Add a Kavita library
 
-The fields are the same as Komga's, except that Kavita takes only an API key and its `libraryIds` are numbers.
+The Kavita account needs the download role.
 
-Each Kavita chapter becomes one publication. A file that's a whole volume is called "Volume 1", a loose chapter "Chapter 12", and a special by its name, unless the file's own metadata gives a title.
+1. Copy the account's API key from its settings page in Kavita.
+2. Add the library:
 
-## Syncing
+   ```sh
+   curl -X POST $SERVER/api/v1/libraries \
+   	-H "Authorization: Bearer $TOKEN" -H 'content-type: application/json' \
+   	-d '{"name": "Kavita", "kavita": {"url": "http://kavita:5000", "apiKey": "<key>"}}'
+   ```
 
-Komga and Kavita can't tell Chek when something changes, so Chek syncs them:
+To read only some Kavita libraries, send their numeric ids in `libraryIds`.
 
-- when the server starts,
-- every `CHEK_SOURCE_SYNC_MINUTES`, 60 by default, or never with `0`,
-- and when an admin asks, with `POST /api/v1/libraries/{libraryId}/scan`.
+Chek makes one publication for each Kavita chapter. If the file's own metadata has no title, Chek names it by its kind. A file that holds a whole volume is "Volume 1", a single chapter is "Chapter 12", and a special keeps its name.
 
-A book is read again only when it, its file or its series changed. Books that disappear are marked unavailable, not deleted, so reading positions survive if they come back. Progress, bookmarks, highlights and an admin's metadata edits are kept in Chek and survive syncs.
+## Sync a library
 
-## Progress written back
+Komga and Kavita can't tell Chek about changes, so Chek syncs on its own. A sync runs in three cases:
 
-The admin who adds the library has their progress written back to the Komga or Kavita account, so its own apps resume where Chek left off. Only that one person is written back, because everyone reading the library shares the one account. Send `"writeProgress": false` to turn it off.
+- When the server starts.
+- Every `CHEK_SOURCE_SYNC_MINUTES` minutes. The default is 60. A value of `0` turns off the timer.
+- When an admin sends `POST /api/v1/libraries/{libraryId}/scan`.
 
-- **Komga:** EPUB positions go as Readium locators, and comics and PDFs as a page number.
-- **Kavita:** comics and PDFs go as a page number. Kavita keeps a book's place in a form a Readium locator can't name, so a book is written back only once it's finished.
+A sync reads a book again only if the book, its file, or its series changed. A book that has gone from Komga or Kavita becomes unavailable, but Chek doesn't delete it. If the book comes back, its reading position is still there. Chek keeps progress, bookmarks, highlights, and metadata edits, so a sync doesn't change them.
 
-Reaching the last page marks a book read. A write that Komga or Kavita refuses is logged, not retried.
+## Write progress back
+
+Chek writes the reading progress of the admin who added the library back to the Komga or Kavita account. Then Komga's or Kavita's own apps resume where Chek stopped. Chek writes back only that admin's progress, because every reader of the library shares the one account.
+
+To turn this off, send `"writeProgress": false` when you add the library.
+
+- For Komga, Chek sends EPUB positions as Readium locators. It sends comics and PDFs as a page number.
+- For Kavita, Chek sends comics and PDFs as a page number. Kavita stores a book's position in a form that a Readium locator can't express. So Chek writes a book back only when the book is finished.
+
+When the reader reaches the last page, Chek marks the book as read. If Komga or Kavita refuses a write, Chek logs it and doesn't try again.

@@ -1,39 +1,43 @@
 ---
-title: Install
-description: Run Chek server with Docker, Docker Compose or Dokploy, or build it from source.
+title: Install the server
+description: Run Chek server with Docker, Docker Compose, or Dokploy, or build it from source.
 ---
 
-Chek server runs as a single process with an SQLite database, so one container and one volume is a whole install.
+Chek server is one process with one SQLite database. To install it, you run one container with one data volume.
 
-## Images
+## Choose an image tag
 
-CI publishes `ghcr.io/readchek/chek` for amd64 and arm64.
+CI publishes the image `ghcr.io/readchek/chek` for amd64 and arm64.
 
-| Tag | What you get |
+| Tag | Contents |
 | --- | --- |
 | `latest` | The newest release |
-| A version, such as `0.3.0` | That release, for pinning |
+| A version, such as `0.3.0` | That release |
 | `edge` | The newest commit on `main` |
-| Any of the above with `-browser`, such as `latest-browser` | The same server with Chromium, for [browser-backed extensions](/self-hosting/extensions/#sites-behind-a-challenge) |
+| Any tag above with `-browser` added, such as `latest-browser` | The same server with Chromium, for extensions that need a browser |
 
-The plain image is small and has no browser. Use a `-browser` tag only if you run extensions that need one, and only extensions you trust.
+Use the plain image unless an extension you run needs a browser. The `-browser` images turn off Chromium's own sandbox, so use them only with extensions you trust. For details, read [Let extensions get past site challenges](/self-hosting/extensions/#let-extensions-get-past-site-challenges).
 
-In the image, the server listens on `0.0.0.0:8080`, keeps its data in `/data` and runs as an unprivileged `chek` user (uid 10001).
+In every image, the server listens on `0.0.0.0:8080` and keeps its data in `/data`. It runs as the user `chek`, with uid 10001.
 
-## Docker
+## Run it with Docker
+
+Mount each folder that you want to read under `/library`:
 
 ```sh
 docker run -d --name chek --restart unless-stopped -p 8080:8080 \
-  -e CHEK_SETUP_TOKEN=<32 or more random characters> \
-  -v chek-data:/data \
-  -v /srv/books:/library/books:ro \
-  -v /srv/comics:/library/comics:ro \
-  ghcr.io/readchek/chek:latest
+	-e CHEK_SETUP_TOKEN=<32 or more random characters> \
+	-v chek-data:/data \
+	-v /srv/books:/library/books:ro \
+	-v /srv/comics:/library/comics:ro \
+	ghcr.io/readchek/chek:latest
 ```
 
-Mount each folder you want to read under `/library`, read-only unless you want admins to [upload](/self-hosting/uploads/) into it. Setting `CHEK_SETUP_TOKEN` saves reading it from the log on first start.
+`CHEK_SETUP_TOKEN` sets the token that creates the first admin account, so you don't need to read it from the log. Mount a folder read-write, without `:ro`, only if admins [upload files](/self-hosting/uploads/) to it.
 
-## Docker Compose
+## Run it with Docker Compose
+
+Create `compose.yaml`:
 
 ```yaml title="compose.yaml"
 services:
@@ -52,43 +56,52 @@ volumes:
   chek-data:
 ```
 
+Then start it with a random setup token:
+
 ```sh
 CHEK_SETUP_TOKEN=$(openssl rand -hex 24) docker compose up -d
 ```
 
-Behind a reverse proxy on the same Docker network, replace `ports` with `expose: ["8080"]` and set [`CHEK_TRUSTED_PROXIES`](/self-hosting/reverse-proxy/).
+If a reverse proxy runs on the same Docker network, replace `ports` with `expose: ["8080"]`. Then set `CHEK_TRUSTED_PROXIES`, as [Serve Chek over HTTPS](/self-hosting/reverse-proxy/) describes.
 
-For browser-backed extensions, use a `-browser` tag and give the container more shared memory for Chromium:
+If an extension needs a browser, use a `-browser` tag and give Chromium 1 GB of shared memory:
 
 ```yaml
     image: ghcr.io/readchek/chek:latest-browser
     shm_size: 1gb
 ```
 
-## Dokploy
+## Run it on Dokploy
 
-The chek repository has a Compose file ready for Dokploy at [`deploy/server/compose.yaml`](https://github.com/readchek/chek/blob/main/deploy/server/compose.yaml). It runs the `edge-browser` image behind Dokploy's proxy.
+The chek repository has a Compose file for Dokploy at [`deploy/server/compose.yaml`](https://github.com/readchek/chek/blob/main/deploy/server/compose.yaml). It runs the `edge-browser` image.
 
-1. Create a **Compose** application from `readchek/chek` and select `deploy/server/compose.yaml`.
-2. In **Environment**, set `CHEK_SETUP_TOKEN` to 32 or more random characters. To pin a release instead of following `main`, set `CHEK_IMAGE`, such as `ghcr.io/readchek/chek:0.3.0-browser`.
-3. Route your domain to service `chek`, port `8080`, with HTTPS.
-4. Deploy, then [create the admin](/self-hosting/first-steps/).
+1. Create a Compose application from `readchek/chek`, and select `deploy/server/compose.yaml`.
+2. In **Environment**, set `CHEK_SETUP_TOKEN` to 32 or more random characters.
+3. To run a release instead of `main`, also set `CHEK_IMAGE`, such as `ghcr.io/readchek/chek:0.3.0-browser`.
+4. Route your domain to the service `chek` on port `8080`, with HTTPS.
+5. Deploy, then [create the admin account](/self-hosting/first-steps/#create-the-admin-account).
 
-That file mounts no book folders. To read local files, add a read-only bind mount such as `/srv/books:/library/books:ro`.
+The Compose file mounts no folders of books. To read files from the host, add a read-only bind mount, such as `/srv/books:/library/books:ro`.
 
-## From source
+## Build it from source
 
-You need a recent stable Rust, [libvips](https://www.libvips.org) for cover thumbnails and [libarchive](https://www.libarchive.org) for RAR and 7-Zip comics.
+To build the server, you need a recent stable Rust and two libraries. Chek uses [libvips](https://www.libvips.org) to make cover thumbnails and [libarchive](https://www.libarchive.org) to read RAR and 7-Zip comics.
 
-```sh
-apt install libvips-dev libarchive-dev   # Debian or Ubuntu
-brew install vips libarchive             # macOS
+1. Install the libraries.
 
-git clone https://github.com/readchek/chek
-cd chek
-cargo run --release --bin chek
-```
+   ```sh
+   apt install libvips-dev libarchive-dev   # Debian or Ubuntu
+   brew install vips libarchive             # macOS
+   ```
 
-Run from source, the server listens on `127.0.0.1:8080` and keeps its data in `./data`. Change both with [`CHEK_BIND` and `CHEK_DATA_DIR`](/self-hosting/configuration/).
+2. Clone the repository and run the server.
 
-To build the image yourself, run `docker build -t chek .` in the repository, or `docker build --target browser -t chek-browser .` for the browser image.
+   ```sh
+   git clone https://github.com/readchek/chek
+   cd chek
+   cargo run --release --bin chek
+   ```
+
+A server built from source listens on `127.0.0.1:8080` and keeps its data in `./data`. To change them, set `CHEK_BIND` and `CHEK_DATA_DIR`.
+
+To build the image yourself, run `docker build -t chek .` in the repository. For the image with Chromium, run `docker build --target browser -t chek-browser .`.

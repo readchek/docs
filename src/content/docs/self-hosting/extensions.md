@@ -1,59 +1,84 @@
 ---
-title: Extensions on your server
-description: Repositories, installs, extension libraries, content ratings and sites behind a challenge.
+title: Run extensions
+description: Add extension repositories, turn extensions into libraries, and set up challenge solving and an outbound proxy.
 ---
 
-Extensions are sources the server reads series from, such as a webcomic's site or a public-domain library. Each one is a WebAssembly component that runs in a sandbox inside the server, with no files and no network except the sites it declares. This page covers running them. Writing one is covered in the [extension guide](https://github.com/readchek/chek/blob/main/extensions/README.md) until its pages land here.
+An extension is a source that the server reads series from, such as a webcomic's site or a library of public-domain books. Each extension is a WebAssembly component. The server runs it in a sandbox with no file access and no network access except to the sites that the extension declares.
 
-## Repositories
+This page is about running extensions on your server. To write one, read the [extension README](https://github.com/readchek/chek/blob/main/extensions/README.md).
 
-Extensions are installed from repositories: an `index.json` and the components it lists, served over HTTPS.
+Most people manage repositories and installs in the Chek app, so they never call the endpoints on this page.
 
-- **Server-wide repositories** are the admin's allow list, and everyone sees them. A new server starts with the official one, `https://chek.page/extensions/index.json`, which an admin can remove.
-- **Personal repositories** are added by people other than admins, and only they see them. This is off until an admin turns on `allowAnyRepository`:
+## Add an extension repository
 
-  ```sh
-  curl -X PUT $SERVER/api/v1/settings \
-    -H "Authorization: Bearer $TOKEN" -H 'content-type: application/json' \
-    -d '{"allowAnyRepository": true}'
-  ```
+A repository is an `index.json` file and the components that it lists, served over HTTPS. There are two kinds:
 
-  Turning it off again keeps those repositories but nothing is installed or run from them.
+- A server-wide repository belongs to the admins, and every user sees it. A new server starts with the official repository, `https://chek.page/extensions/index.json`. An admin can remove it.
+- A personal repository belongs to one user, and only that user sees it.
 
-The server reads every index again every six hours, so new versions show up as updates. Private repositories take a bearer token, a username and password, or a header, which are sent only to the repository's own origin and never returned by the API.
+By default, only admins can add repositories. To let every user add personal repositories, turn on `allowAnyRepository`:
 
-The Chek app manages repositories and installs, so most people never call these endpoints themselves.
+```sh
+curl -X PUT $SERVER/api/v1/settings \
+	-H "Authorization: Bearer $TOKEN" -H 'content-type: application/json' \
+	-d '{"allowAnyRepository": true}'
+```
 
-## Installs
+If you turn the setting off again, the server keeps the personal repositories. It doesn't install or run anything from them.
 
-Everyone installs extensions for themselves. Installing downloads the component, checks its SHA-256 digest, and checks that it declares the same id, version, sites and capabilities as the index, so a repository can't list one thing and ship another. Components are kept in the data folder under `extensions/`, shared by everyone on the same version.
+The server reads every repository's index every six hours, so new versions appear as updates. A private repository takes a bearer token, a user name and password, or a header. The server sends them only to the repository's own origin and never returns them from the API.
 
-## Extension libraries
+## Install an extension
 
-An admin can turn an extension they installed into a library that readers are granted like any other. It starts empty and holds only the series an admin follows into it, synced on the same schedule as [Komga and Kavita](/self-hosting/komga-and-kavita/#syncing). It runs on that admin's install, so readers don't need the extension. If the admin uninstalls it, the library answers `source_unavailable` until it's installed again.
+Each user installs extensions for themselves. When a user installs one, the server does these checks:
 
-## Content ratings
+1. It downloads the component and checks its SHA-256 digest against the index.
+2. It checks that the component declares the same id, version, sites, and capabilities as the index.
 
-Each person chooses which content ratings they see, from Safe and Suggestive through Erotica and Pornographic. Search passes the choice to the extension and drops results rated outside it, so a source that ignores the choice still can't show them. Until someone chooses, and always on demo accounts, they see Safe and Suggestive.
+Because of the second check, a repository can't list one extension and ship another. The server stores components in the data folder under `extensions/`. Users on the same version share one copy.
 
-The iOS app only narrows the choice. Erotica and Pornographic are turned on in the web app at [app.chek.page](https://app.chek.page), after the person confirms they're an adult.
+## Turn an extension into a library
 
-## Images
+An admin can make a library from an extension that the admin installed. An admin grants the library to readers like any other library.
 
-Covers and pages from extensions are fetched by the server, never by the app, and kept on disk in `extensions/images` in the data folder. `CHEK_EXTENSION_IMAGE_CACHE_MB` caps it, 2048 by default; the least recently read images go first. `0` turns the cache off.
+- The library starts empty. It holds only the series that an admin follows into it.
+- It syncs on the same schedule as [Komga and Kavita libraries](/self-hosting/komga-and-kavita/#sync-a-library).
+- It runs on the admin's install, so readers don't need the extension.
+- If the admin uninstalls the extension, the library answers `source_unavailable` until the admin installs it again.
 
-## Sites behind a challenge
+## Choose content ratings
 
-Some sites put a browser challenge in front of their pages. Extensions that declare the `browser` capability can get past one in two ways, and both are the admin's to set up.
+Each person chooses the content ratings they see. The ratings are Safe, Suggestive, Erotica, and Pornographic. The server passes the choice to the extension's search. Then it removes any result that the extension rated outside the choice, so a source that ignores the choice can't show those results.
 
-- **A solver.** Point `CHEK_BROWSER_SOLVER_URL` at a [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr)-compatible service, such as `http://flaresolverr:8191/v1`. When a request meets a challenge, the server has the solver load the page, keeps the cookies it earned and retries once.
-- **A browser in the server.** The `-browser` images include Chromium, for extensions that drive interactive pages. Give the container `shm_size: 1gb`. Chromium's own sandbox is turned off for container compatibility, so run only extensions you trust with these images.
+Until a person chooses, the person sees Safe and Suggestive. Demo accounts always see Safe and Suggestive.
 
-A signed-in person can open `/verify` on the server to complete a site's checkbox challenge themselves for an installed source. The cookies are kept in the data folder until the site expires them.
+In the iOS app, a person can only narrow the choice. To turn on Erotica and Pornographic, the person confirms their age in the web app at [app.chek.page](https://app.chek.page).
 
-## Outbound proxy
+## Size the image cache
 
-To send all extension traffic through one HTTP CONNECT proxy:
+The server fetches covers and pages from extensions. The app never contacts an extension's sites. The server keeps the images on disk in `extensions/images` in the data folder.
+
+`CHEK_EXTENSION_IMAGE_CACHE_MB` sets the size of that folder. The default is 2048. When the folder is full, the server deletes the images that were read least recently. A value of `0` turns off the cache.
+
+## Let extensions get past site challenges
+
+Some sites show a browser challenge before their pages. An extension that declares the `browser` capability can get past a challenge in two ways. The admin sets up both.
+
+To use a solver, set `CHEK_BROWSER_SOLVER_URL` to a [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr)-compatible service:
+
+```sh
+CHEK_BROWSER_SOLVER_URL=http://flaresolverr:8191/v1
+```
+
+When a request meets a challenge, the server asks the solver to load the page. It keeps the cookies that the solver earned and tries the request once more.
+
+To run a browser in the server, use a `-browser` image and give the container 1 GB of shared memory with `shm_size: 1gb`. These images include Chromium, for extensions that use interactive pages. Chromium's own sandbox is off in these images, so run only extensions that you trust.
+
+A signed-in user can also complete a site's checkbox challenge by hand. The user opens `/verify` on the server and picks an installed source. The server keeps the cookies in the data folder until the site expires them.
+
+## Send extension traffic through a proxy
+
+To send all extension traffic through one HTTP CONNECT proxy, set these variables:
 
 ```sh
 CHEK_OUTBOUND_PROXY_URL=http://proxy.internal:8888
@@ -61,8 +86,10 @@ CHEK_OUTBOUND_PROXY_USERNAME=<name>
 CHEK_OUTBOUND_PROXY_PASSWORD=<password>
 ```
 
-- Only HTTP CONNECT proxies work, not SOCKS or HTTPS proxy endpoints. Keep credentials in their own variables, not in the URL.
-- It covers source requests, images and browser traffic. Repository downloads, sign-in providers and telemetry connect directly.
-- If the proxy fails, requests fail. They never fall back to a direct connection.
-- Run the proxy where it can't reach your private network, since it resolves the names sources ask for.
-- Without it, sources connect directly and ignore `HTTP_PROXY` and `HTTPS_PROXY`.
+- The proxy must be an HTTP CONNECT proxy. SOCKS proxies and HTTPS proxy endpoints don't work.
+- Put the credentials in their own variables, not in the URL.
+- The proxy carries source requests, images, and browser traffic. Repository downloads, sign-in providers, and telemetry connect directly.
+- If the proxy fails, the requests fail. The server never falls back to a direct connection.
+- The proxy resolves the host names that sources ask for. Run it where it can't reach your private network.
+
+Without these variables, sources connect directly. They ignore `HTTP_PROXY` and `HTTPS_PROXY`.

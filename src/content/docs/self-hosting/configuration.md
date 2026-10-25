@@ -1,62 +1,69 @@
 ---
 title: Configuration
-description: Every environment variable Chek server reads.
+description: Every environment variable that Chek server reads.
 ---
 
-Chek server is configured only with environment variables, and all of them are optional. A value it can't read stops the server at startup with the variable's name and the reason, so a typo never runs with a default you didn't mean.
+Chek server reads its settings from environment variables only. Every variable is optional. If the server can't read a value, it doesn't start, and the log names the variable and the reason.
 
 ## Basics
 
-| Variable | Default | What it does |
+| Variable | Default | Effect |
 | --- | --- | --- |
-| `CHEK_BIND` | `127.0.0.1:8080`, or `0.0.0.0:8080` in the image | Address and port to listen on |
-| `CHEK_DATA_DIR` | `./data`, or `/data` in the image | Where the database, covers and extensions live |
-| `CHEK_SCAN_WORKERS` | cores − 1 | How many files a scan reads at once. Scanning on every core slows down pages for readers |
-| `CHEK_SETUP_TOKEN` | logged at start | Your own [setup token](/self-hosting/first-steps/#create-the-admin), 32 characters or more, so you don't need the log |
-| `CHEK_MAX_UPLOAD_BYTES` | `2147483648` (2 GiB) | Largest file an admin can [upload](/self-hosting/uploads/) |
+| `CHEK_BIND` | `127.0.0.1:8080`. In the image, `0.0.0.0:8080` | The address and port to listen on |
+| `CHEK_DATA_DIR` | `./data`. In the image, `/data` | The folder for the database, covers, and extensions |
+| `CHEK_SCAN_WORKERS` | One less than the number of cores | The number of files that a scan reads at once |
+| `CHEK_SETUP_TOKEN` | A random token, written to the log | The token that creates the first admin account. It must be 32 or more characters |
+| `CHEK_MAX_UPLOAD_BYTES` | `2147483648`, which is 2 GiB | The largest file that an admin can upload |
 
-## Behind a proxy
+## Proxies and browsers
 
-See [HTTPS and reverse proxies](/self-hosting/reverse-proxy/).
-
-| Variable | Default | What it does |
+| Variable | Default | Effect |
 | --- | --- | --- |
-| `CHEK_TRUSTED_PROXIES` | none | Your proxy's addresses or CIDR ranges, comma-separated, such as `10.0.0.0/8`. Client addresses are read from `X-Forwarded-For` only on requests from these |
-| `CHEK_CLIENT_IP_HEADER` | none | A header to read the client address from instead, such as `CF-Connecting-IP` behind Cloudflare |
-| `CHEK_WEB_ORIGINS` | `https://app.chek.page` | Comma-separated origins allowed to call the API from a browser. Add yours if you host a web client |
+| `CHEK_TRUSTED_PROXIES` | None | Comma-separated addresses or CIDR ranges of your reverse proxies, such as `10.0.0.0/8`. The server reads the client address from `X-Forwarded-For` only on requests from these addresses |
+| `CHEK_CLIENT_IP_HEADER` | None | A header to read the client address from, such as `CF-Connecting-IP`. The server reads it only on requests from `CHEK_TRUSTED_PROXIES` |
+| `CHEK_WEB_ORIGINS` | `https://app.chek.page` | Comma-separated origins that may call the API from a browser |
 
 ## Sign-in
 
-See [Sign-in providers](/self-hosting/sign-in-providers/).
-
-| Variable | Default | What it does |
+| Variable | Default | Effect |
 | --- | --- | --- |
-| `CHEK_PUBLIC_URL` | none | The address people reach the server at. Needed for sign-in providers |
-| `CHEK_OIDC_PROVIDERS` | none | Comma-separated provider ids, such as `authentik,google` |
-| `CHEK_OIDC_<ID>_*` | | Each provider's settings |
-| `CHEK_OIDC_REDIRECTS` | `chek://` | Comma-separated prefixes, besides the public URL, that apps may ask to be sent back to |
-| `CHEK_DEMO_USERS` | none | Comma-separated account names to treat as shared [demo accounts](/self-hosting/users/#demo-accounts) |
+| `CHEK_PUBLIC_URL` | None | The address that people use to reach the server. Sign-in providers need it |
+| `CHEK_OIDC_PROVIDERS` | None | Comma-separated ids of OpenID Connect providers, such as `authentik,google` |
+| `CHEK_OIDC_REDIRECTS` | `chek://` | Comma-separated prefixes, besides `CHEK_PUBLIC_URL`, that an app may give as its redirect URI |
+| `CHEK_DEMO_USERS` | None | Comma-separated names of accounts that are shared demo accounts |
+
+### Provider settings
+
+Each provider in `CHEK_OIDC_PROVIDERS` takes the variables below. In each name, replace `<ID>` with the provider's id in upper case, with each `-` changed to `_`.
+
+| Variable | Default | Effect |
+| --- | --- | --- |
+| `CHEK_OIDC_<ID>_ISSUER` | Required | The issuer URL. It must use HTTPS, except on a loopback address |
+| `CHEK_OIDC_<ID>_CLIENT_ID` | Required | The client id |
+| `CHEK_OIDC_<ID>_CLIENT_SECRET` | None | The client secret. A public client has none |
+| `CHEK_OIDC_<ID>_NAME` | The id | The label on the sign-in button |
+| `CHEK_OIDC_<ID>_SCOPES` | `openid profile email` | The scopes to request |
+| `CHEK_OIDC_<ID>_CREATE_USERS` | `false` | Whether a person with no account gets a new one |
+| `CHEK_OIDC_<ID>_ADMIN_GROUPS` | None | Comma-separated groups. A new account is an admin if the person is in one of them |
+| `CHEK_OIDC_<ID>_GROUPS_CLAIM` | `groups` | The claim that lists the person's groups |
 
 ## Sources and extensions
 
-See [Komga and Kavita](/self-hosting/komga-and-kavita/) and [Extensions](/self-hosting/extensions/).
-
-| Variable | Default | What it does |
+| Variable | Default | Effect |
 | --- | --- | --- |
-| `CHEK_SOURCE_SYNC_MINUTES` | `60` | How often Komga, Kavita and extension libraries sync. `0` turns the timer off |
-| `CHEK_EXTENSION_IMAGE_CACHE_MB` | `2048` | Disk cache for covers and pages from extensions. `0` turns it off |
-| `CHEK_BROWSER_SOLVER_URL` | none | A FlareSolverr-compatible service, for sites behind a challenge |
-| `CHEK_BROWSER_EXECUTABLE` | none, set in `-browser` images | Absolute path to Chromium, for extensions that drive interactive pages |
-| `CHEK_BROWSER_NATIVE` | `false`, `true` in `-browser` images | Lets Chromium make its own connections through a restricted proxy |
+| `CHEK_SOURCE_SYNC_MINUTES` | `60` | Minutes between syncs of Komga, Kavita, and extension libraries. `0` turns off the timer |
+| `CHEK_EXTENSION_IMAGE_CACHE_MB` | `2048` | The size of the disk cache for images from extensions, in MB. `0` turns off the cache |
+| `CHEK_BROWSER_SOLVER_URL` | None | The address of a FlareSolverr-compatible service |
+| `CHEK_BROWSER_EXECUTABLE` | None. In `-browser` images, `/usr/bin/chromium` | The absolute path to Chromium |
+| `CHEK_BROWSER_NATIVE` | `false`. In `-browser` images, `true` | Whether Chromium makes its own connections through a restricted proxy |
 | `CHEK_BROWSER_ARGS` | `["--headless=new"]` | Chromium launch arguments, as a JSON array |
-| `CHEK_OUTBOUND_PROXY_URL` | none | An HTTP CONNECT proxy for all extension traffic |
-| `CHEK_OUTBOUND_PROXY_USERNAME`, `CHEK_OUTBOUND_PROXY_PASSWORD` | none | The proxy's credentials, set together |
+| `CHEK_OUTBOUND_PROXY_URL` | None | The address of an HTTP CONNECT proxy for all extension traffic |
+| `CHEK_OUTBOUND_PROXY_USERNAME` | None | The proxy's user name. Set it with `CHEK_OUTBOUND_PROXY_PASSWORD` |
+| `CHEK_OUTBOUND_PROXY_PASSWORD` | None | The proxy's password. Set it with `CHEK_OUTBOUND_PROXY_USERNAME` |
 
 ## Logs
 
-See [Logs and tracing](/self-hosting/logs/).
-
-| Variable | What it does |
-| --- | --- |
-| `RUST_LOG` | Log level, such as `info` or `debug` |
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | Sends logs and traces to an OpenTelemetry collector over OTLP/HTTP. The standard `OTEL_*` variables apply |
+| Variable | Default | Effect |
+| --- | --- | --- |
+| `RUST_LOG` | `info` | The log level, such as `debug` or `warn` |
+| `OTEL_EXPORTER_OTLP_ENDPOINT` | None | The OpenTelemetry collector that receives logs and traces over OTLP/HTTP. The other standard `OTEL_*` variables apply too |

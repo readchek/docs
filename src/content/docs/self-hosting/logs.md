@@ -1,19 +1,19 @@
 ---
-title: Logs and tracing
-description: Read the server's logs and send them to OpenTelemetry.
+title: Read logs and traces
+description: Read the server's logs, and send logs and traces to OpenTelemetry.
 ---
 
-The server logs to standard output, so `docker logs chek` shows them. Set the level with `RUST_LOG`, such as `RUST_LOG=debug`.
+The server writes its logs to standard output. With Docker, run `docker logs chek` to read them. To change the level, set `RUST_LOG`, such as `RUST_LOG=debug`. The default is `info`.
 
-Every request is logged with its method, route, path, status, duration, client address and user agent, inside a span named after its route, such as `GET /api/v1/publications/{publicationId}/pages/{pageIndex}`, so traces group by endpoint.
+The server logs each request with its method, route, path, status, duration, client address, and user agent. Each request has a span named after its route, such as `GET /api/v1/publications/{publicationId}/pages/{pageIndex}`. Traces group by endpoint because of these names.
 
-## OpenTelemetry
+## Send logs and traces to OpenTelemetry
 
-To send logs and traces to an OpenTelemetry collector over OTLP/HTTP:
+Set the address of your OpenTelemetry collector. The server sends logs and traces to it over OTLP/HTTP.
 
 ```sh
 OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
 OTEL_SERVICE_NAME=chek
 ```
 
-The standard `OTEL_*` variables apply. The exporter doesn't use TLS, since the collector is expected on the same private network. Queued data is sent when the server shuts down.
+The other standard `OTEL_*` variables apply too. The exporter doesn't use TLS, so run the collector on the same private network as the server. When the server shuts down, it sends the data in its queue.
