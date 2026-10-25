@@ -19,4 +19,6 @@ Before a pull request, run `bun run lint`, `bun run format:check`, `bun run chec
 
 ## Deploy
 
-`bun run deploy` builds the site and publishes it to Cloudflare at docs.chek.page, after `cf auth login`.
+Every push to `main` publishes the site to Cloudflare at docs.chek.page through the Deploy workflow, after the same checks CI runs. It signs in with the `CLOUDFLARE_API_TOKEN` repository secret. To redeploy without a push, run the workflow from the Actions tab.
+
+To deploy from your own machine, run `bun run deploy` after `cf auth login`.
