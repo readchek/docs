@@ -1,0 +1,35 @@
+---
+title: Chek Docs
+description: Run your own Chek server, build on its API, write source extensions and embed Chek Reader.
+template: splash
+hero:
+  tagline: Run your own Chek server, build on its API, write sources for it, and read with the same engine as the app.
+  actions:
+    - text: Run a server
+      link: /get-started/quick-start/
+      icon: right-arrow
+    - text: API reference
+      link: /api/reference/
+      variant: minimal
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components"
+
+<CardGrid>
+  <Card title="Self-host" icon="laptop">
+    Run Chek server with Docker, point it at your folders, Komga or Kavita, and read from the app on
+    every device. [Install the server](/self-hosting/install/).
+  </Card>
+  <Card title="Build on the API" icon="seti:json">
+    Sign in, browse libraries, stream pages and sync reading positions over HTTP.
+    [API overview](/api/overview/).
+  </Card>
+  <Card title="Write extensions" icon="puzzle">
+    Sources are WebAssembly components the server runs in a sandbox. Guides are coming; for now, see
+    the [extension README](https://github.com/readchek/chek/blob/main/extensions/README.md).
+  </Card>
+  <Card title="Embed Chek Reader" icon="open-book">
+    The Swift package behind the app reads EPUB, PDF, comics and more in any Apple app. Guides are
+    coming; for now, see [its README](https://github.com/readchek/chek-reader#readme).
+  </Card>
+</CardGrid>

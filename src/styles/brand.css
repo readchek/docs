@@ -1,0 +1,50 @@
+/* Chek's brand, shared with chek.page and the apps: electric blue on paper,
+   mist for quiet surfaces, Bricolage headlines and DM Sans text. Fonts are
+   served from the site, like chek.page's, so the page never calls another
+   origin. */
+@font-face {
+  font-family: Bricolage;
+  src: url("/fonts/bricolage-700-593306227576.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "DM Sans";
+  src: url("/fonts/dm-sans-400-2ea1bf6e4127.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "DM Sans";
+  src: url("/fonts/dm-sans-600-fd6f63245e24.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+
+:root {
+  --sl-font: "DM Sans", system-ui, sans-serif;
+  --sl-color-accent-low: #1a2147;
+  --sl-color-accent: #5b78ff;
+  --sl-color-accent-high: #c9d2ff;
+  --sl-color-black: #0e0f15;
+  --sl-color-gray-6: #171820;
+}
+
+:root[data-theme="light"] {
+  --sl-color-accent-low: #dfe4fb;
+  --sl-color-accent: #2448e8;
+  --sl-color-accent-high: #1a34b8;
+  --sl-color-white: #171820;
+  --sl-color-black: #fafaf7;
+  --sl-color-gray-6: #eef0f8;
+  --sl-color-gray-7: #f4f5fa;
+}
+
+h1,
+h2,
+h3,
+.site-title,
+.hero h1 {
+  font-family: Bricolage, "DM Sans", sans-serif;
+  font-weight: 700;
+}

@@ -1,0 +1,30 @@
+name: CI
+
+# Pushes to other branches are covered by their pull request, so running on
+# both would check every commit twice.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  site:
+    name: Lint, check and build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: package.json
+      - run: bun install --frozen-lockfile
+      - run: bun run lint
+      - run: bun run format:check
+      - run: bun run check
+      - run: bun run build
