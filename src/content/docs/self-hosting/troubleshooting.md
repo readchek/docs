@@ -48,4 +48,6 @@ The site may show a browser challenge. Follow [Let extensions get past site chal
 
 ## Report a problem
 
-Open an issue on [readchek/chek](https://github.com/readchek/chek/issues). Include the server version, how you run the server, and the log lines around the problem. Remove tokens and passwords from the logs first.
+To report a problem, fill in the [problem form on readchek/chek](https://github.com/readchek/chek/issues/new?template=bug.yml). Problems with the app, the web app, the server and extensions all go there. The form asks for the server version, how you run the server, and the log lines around the problem. Remove tokens and passwords from the logs first.
+
+To ask a question instead, start a discussion in [readchek/chek discussions](https://github.com/readchek/chek/discussions). If you have no GitHub account, write to support@chek.page.
