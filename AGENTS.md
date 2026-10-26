@@ -32,7 +32,7 @@ bun run dev          # http://localhost:4321
 bun run lint && bun run format:check && bun run check && bun run build
 ```
 
-The build fetches `openapi.yaml` from GitHub, so it needs network. `bun run deploy` builds and publishes to Cloudflare, after `cf auth login`.
+The build fetches `openapi.yaml` from GitHub, so it needs network. Pushes to `main` deploy through `.github/workflows/deploy.yml`. `bun run deploy` builds and publishes from your own machine, after `cf auth login`.
 
 ## Writing
 
