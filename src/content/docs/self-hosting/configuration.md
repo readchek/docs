@@ -13,6 +13,7 @@ Chek server reads its settings from environment variables only. Every variable i
 | `CHEK_DATA_DIR` | `./data`. In the image, `/data` | The folder for the database, covers, and extensions |
 | `CHEK_SCAN_WORKERS` | One less than the number of cores | The number of files that a scan reads at once |
 | `CHEK_SETUP_TOKEN` | A random token, written to the log | The token that creates the first admin account. It must be 32 or more characters |
+| `CHEK_WEB_DIR` | None. In the image, `/usr/share/chek/web` | The folder with the [web app's](/self-hosting/web-app/) build. The server serves it at `/`, with the admin panel at `/admin`. `CHEK_ADMIN_DIR` is its old name and still works |
 | `CHEK_MAX_UPLOAD_BYTES` | `2147483648`, which is 2 GiB | The largest file that an admin can upload |
 
 ## Proxies and browsers
@@ -21,7 +22,7 @@ Chek server reads its settings from environment variables only. Every variable i
 | --- | --- | --- |
 | `CHEK_TRUSTED_PROXIES` | None | Comma-separated addresses or CIDR ranges of your reverse proxies, such as `10.0.0.0/8`. The server reads the client address from `X-Forwarded-For` only on requests from these addresses |
 | `CHEK_CLIENT_IP_HEADER` | None | A header to read the client address from, such as `CF-Connecting-IP`. The server reads it only on requests from `CHEK_TRUSTED_PROXIES` |
-| `CHEK_WEB_ORIGINS` | `https://app.chek.page` | Comma-separated origins that may call the API from a browser |
+| `CHEK_WEB_ORIGINS` | `https://app.chek.page` | Comma-separated origins that may call the API from a browser. The web app that the server serves needs no entry |
 
 ## Sign-in
 

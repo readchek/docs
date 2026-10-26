@@ -7,6 +7,8 @@ An admin can add a [Komga](https://komga.org) or [Kavita](https://www.kavitaread
 
 Create an account in Komga or Kavita for Chek to use. Chek checks the credentials before it adds the library. It stores them on the server and never returns them from the API.
 
+To add the library in the admin panel, open **Libraries** and click **Add library**. Then choose **A Komga server** or **A Kavita server**, and fill in the same details that the steps below send to the API.
+
 ## Add a Komga library
 
 The Komga account needs the page streaming role and the file download role.

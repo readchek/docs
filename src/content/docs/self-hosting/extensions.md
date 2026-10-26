@@ -7,7 +7,7 @@ An extension is a source that the server reads series from, such as a webcomic's
 
 This page is about running extensions on your server. To write one, read the [extension README](https://github.com/readchek/chek/blob/main/extensions/README.md).
 
-Most people manage repositories and installs in the Chek app, so they never call the endpoints on this page.
+Most people manage repositories and installs in the Chek app, so they never call the endpoints on this page. Admins manage server-wide repositories in the admin panel, under **Extensions**.
 
 ## Add an extension repository
 
@@ -16,7 +16,7 @@ A repository is an `index.json` file and the components that it lists, served ov
 - A server-wide repository belongs to the admins, and every user sees it. A new server starts with the official repository, `https://chek.page/extensions/index.json`. An admin can remove it.
 - A personal repository belongs to one user, and only that user sees it.
 
-By default, only admins can add repositories. To let every user add personal repositories, turn on `allowAnyRepository`:
+By default, only admins can add repositories. To let every user add personal repositories, turn on **Let people add any repository** under **Extensions** in the admin panel. With the API, turn on `allowAnyRepository`:
 
 ```sh
 curl -X PUT $SERVER/api/v1/settings \

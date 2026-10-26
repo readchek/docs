@@ -5,7 +5,7 @@ description: Authentication, access, paging, errors, and caching in the Chek ser
 
 Chek server has a JSON API under `/api/v1`. The Chek app and the web app use it, and your own clients can too.
 
-[`openapi.yaml`](https://github.com/readchek/chek/blob/main/openapi.yaml) in the chek repository describes the API in OpenAPI 3.1. It's the contract: a change to the API changes that file in the same pull request. Each server release tags the version of the file that it implements. The [API reference](/api/reference/) on this site comes from the file at release 0.3.0. To generate a client, use the file at the tag that matches your server.
+[`openapi.yaml`](https://github.com/readchek/chek/blob/main/openapi.yaml) in the chek repository describes the API in OpenAPI 3.1. It's the contract: a change to the API changes that file in the same pull request. Each server release tags the version of the file that it implements. The [API reference](/api/reference/) on this site comes from the file at release 0.5.0. To generate a client, use the file at the tag that matches your server.
 
 ## Authentication
 
@@ -59,7 +59,7 @@ A library that a reader can't see answers `404`, and so do its series and public
 
 ## Browsers
 
-The API answers browser requests only from the origins in `CHEK_WEB_ORIGINS`. The default is `https://app.chek.page`. Requests carry a bearer token and never cookies. A page served over HTTPS can call only HTTPS servers.
+The API answers browser requests only from the origins in `CHEK_WEB_ORIGINS`. The default is `https://app.chek.page`. The web app that the server serves calls its own origin, so it needs no entry. Requests carry a bearer token and never cookies. A page served over HTTPS can call only HTTPS servers.
 
 ## Paging
 
