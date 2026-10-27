@@ -11,13 +11,13 @@ Read the log with `docker logs chek`. If a setting is wrong, the log names the v
 
 The server writes the token only while it has no accounts. Look further back in `docker logs chek`. Or set your own token in `CHEK_SETUP_TOKEN` and restart the server.
 
-If setup answers `409 already_set_up`, an admin account exists already. Sign in with it instead.
+If the admin panel asks you to sign in instead of showing **Set up Chek**, an admin account exists already. Sign in with it. The API answers `409 already_set_up` in the same case.
 
 ## A library is empty
 
 1. Check that the library's path is the path inside the container, such as `/library/comics`, not the path on the host.
 2. Check that the container can read the files. The image runs as uid 10001, so that user or everyone needs read access.
-3. Wait for the scan to finish. `GET /api/v1/libraries` shows the `scan` state of each library.
+3. Wait for the scan to finish. In the admin panel, the library's page shows the scan under **Scan**. With the API, `GET /api/v1/libraries` shows the `scan` state of each library.
 
 The server skips files that aren't a format it reads. It reads EPUB, PDF, CBZ, CBR, CB7, CBT, MOBI, AZW3, FB2, plain text, and Markdown.
 
@@ -29,10 +29,18 @@ The file changed on disk after the last scan, so the server's page offsets no lo
 
 The server sees all clients at your proxy's address. Set `CHEK_TRUSTED_PROXIES`, as [Tell the server which proxy to trust](/self-hosting/reverse-proxy/#tell-the-server-which-proxy-to-trust) describes. Behind Cloudflare, also set `CHEK_CLIENT_IP_HEADER`.
 
+## The admin panel or the web app answers `404`
+
+The server serves the web app only when `CHEK_WEB_DIR` points at its build. The image sets it. From a source build, follow [Run the app from a source build](/self-hosting/web-app/#run-the-app-from-a-source-build).
+
+## The admin panel says the server is older than the admin panel
+
+The admin panel needs Chek server 0.4.0 or later. [Update the server](/self-hosting/updating-and-backups/), then try again.
+
 ## The app or the web app can't connect
 
 - Off your local network, the app needs an `https://` address.
-- The web app at app.chek.page connects only to HTTPS servers. Its origin must be in `CHEK_WEB_ORIGINS`, which it is by default.
+- The web app at app.chek.page connects only to HTTPS servers. Its origin must be in `CHEK_WEB_ORIGINS`, which it is by default. To reach a server on plain HTTP, open the web app on the server itself, at `http://<your server>:8080/`.
 - On the device, open `https://<your server>/health`. It should show `{"status":"ok"}`.
 
 ## A Komga or Kavita library isn't added

@@ -1,9 +1,9 @@
 ---
 title: Quick start
-description: Run Chek server in Docker on your computer, create the admin account, add a folder, and read it in the app.
+description: Run Chek server in Docker on your computer, set it up in the admin panel, add a folder, and read it in the browser and the app.
 ---
 
-In this tutorial, we run Chek server on your computer, add a folder of comics to it, and read that folder in the Chek app. It takes about ten minutes.
+In this tutorial, we run Chek server on your computer, add a folder of comics to it, and read that folder in the browser and in the Chek app. It takes about ten minutes.
 
 This setup is for trying Chek on your home network. Before other people use your server over the internet, follow [Install the server](/self-hosting/install/) and [Serve Chek over HTTPS](/self-hosting/reverse-proxy/).
 
@@ -46,42 +46,31 @@ Find the token in the log:
 docker logs chek
 ```
 
-Next, send the token with the name and password of the admin account. Replace the two values in angle brackets.
+Next, open `http://localhost:8080/admin` in a browser. The admin panel shows **Set up Chek**.
 
-```sh
-curl -X POST localhost:8080/api/v1/setup \
-	-H 'content-type: application/json' \
-	-d '{"setupToken": "<token from the log>", "name": "admin", "password": "<a long password>"}'
-```
+Paste the token into **Setup token**. Then fill in **Your name** and a password of 8 or more characters, and click **Create admin account**.
 
-The response is a JSON object with a `token` field. Save the token in a shell variable, because the next steps use it:
-
-```sh
-TOKEN=<the token from the response>
-```
+The admin panel signs you in and shows **Add a library**.
 
 ## Add your folder
 
-Now add the folder as a library. Use the path inside the container, `/library`, not the path on your computer.
+Now add the folder as a library. Under **Where your library is**, keep **A folder on this server**.
 
-```sh
-curl -X POST localhost:8080/api/v1/libraries \
-	-H "Authorization: Bearer $TOKEN" \
-	-H 'content-type: application/json' \
-	-d '{"name": "Comics", "path": "/library"}'
-```
+In **Folder**, enter `/library`. That is the path inside the container, not the path on your computer. You can also click **Browse** and choose the folder.
 
-The server starts to scan the folder at once. A large folder takes some minutes. To see how far the scan is, list the libraries:
+Type `Comics` in **Name**, and click **Add library**.
 
-```sh
-curl localhost:8080/api/v1/libraries -H "Authorization: Bearer $TOKEN"
-```
+The server starts to scan the folder at once. The library's page shows the scan under **Scan**. Books show up as the server finds them, and a large folder takes some minutes.
 
-Each library in the response has a `scan` field with the state of its scan.
+## Read in the browser
+
+Open `http://localhost:8080/` in a new tab. This is the Chek web app, and the server serves it too.
+
+Sign in with the name and password of the admin account. Then click **Shared**, and open the **Comics** library. Click a comic to read it.
 
 ## Read in the app
 
-Finally, open the Chek app on a device on the same network. Add a server with your computer's address and port, such as `192.168.1.20:8080`, and sign in as `admin`. Your comics appear in the app.
+Finally, open the Chek app on an iPhone or iPad on the same network. Add a server with your computer's address and port, such as `192.168.1.20:8080`, and sign in as the admin. Your comics appear in the app.
 
 The app uses plain HTTP only for addresses on your local network. For any other address, the server needs HTTPS.
 

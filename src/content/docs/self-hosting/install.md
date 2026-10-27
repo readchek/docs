@@ -12,7 +12,8 @@ CI publishes the image `ghcr.io/readchek/chek` for amd64 and arm64.
 | Tag | Contents |
 | --- | --- |
 | `latest` | The newest release |
-| A version, such as `0.3.0` | That release |
+| A version, such as `0.5.0` | That release |
+| A minor series, such as `0.5` | The newest release in that series |
 | `edge` | The newest commit on `main` |
 | Any tag above with `-browser` added, such as `latest-browser` | The same server with Chromium, for extensions that need a browser |
 
@@ -77,9 +78,9 @@ The chek repository has a Compose file for Dokploy at [`deploy/server/compose.ya
 
 1. Create a Compose application from `readchek/chek`, and select `deploy/server/compose.yaml`.
 2. In **Environment**, set `CHEK_SETUP_TOKEN` to 32 or more random characters.
-3. To run a release instead of `main`, also set `CHEK_IMAGE`, such as `ghcr.io/readchek/chek:0.3.0-browser`.
+3. To run a release instead of `main`, also set `CHEK_IMAGE`, such as `ghcr.io/readchek/chek:0.5.0-browser`.
 4. Route your domain to the service `chek` on port `8080`, with HTTPS.
-5. Deploy, then [create the admin account](/self-hosting/first-steps/#create-the-admin-account).
+5. Deploy, then open `/admin` on your domain and [create the admin account](/self-hosting/first-steps/#create-the-admin-account).
 
 The Compose file mounts no folders of books. To read files from the host, add a read-only bind mount, such as `/srv/books:/library/books:ro`.
 

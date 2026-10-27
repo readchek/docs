@@ -5,7 +5,7 @@ description: Move to a new release, and keep a copy of the data that you can't r
 
 ## Update to a new release
 
-Each release is a tag on `main`, such as `0.3.0`, with an image of the same name. The `latest` tag follows releases, and `edge` follows `main`. Read the [release notes](https://github.com/readchek/chek/releases) before you update.
+Each release is a tag on `main`, such as `0.5.0`, with an image of the same name. The `latest` tag follows releases, and `edge` follows `main`. Read the [release notes](https://github.com/readchek/chek/releases) before you update.
 
 To update with Docker, pull the image and run the container again with the same volumes:
 
@@ -20,7 +20,7 @@ docker stop chek && docker rm chek
 
 Keep the data volume. The server migrates the database when a new version starts. If a release changes how the server reads files, the migration starts a full rescan. So the first start after an update can scan every library again.
 
-To stay on one release, use its tag, such as `ghcr.io/readchek/chek:0.3.0`. Change the tag when you are ready to update.
+To stay on one release, use its tag, such as `ghcr.io/readchek/chek:0.5.0`. Change the tag when you are ready to update.
 
 ## Know what to back up
 
