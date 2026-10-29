@@ -58,7 +58,7 @@ In the iOS app, a person can only narrow the choice. To turn on Erotica and Porn
 
 The server fetches covers and pages from extensions. The app never contacts an extension's sites. The server keeps the images on disk in `extensions/images` in the data folder.
 
-`CHEK_EXTENSION_IMAGE_CACHE_MB` sets the size of that folder. The default is 2048. When the folder is full, the server deletes the images that were read least recently. A value of `0` turns off the cache.
+`CHEK_EXTENSION_IMAGE_CACHE_MB` sets the size of that folder. The default is 2048. An image fetched without a user's cookies is shared by every user. When the folder is full, the server deletes the images that were read least recently. A value of `0` turns off the cache.
 
 ## Let extensions get past site challenges
 
@@ -73,6 +73,10 @@ CHEK_BROWSER_SOLVER_URL=http://flaresolverr:8191/v1
 When a request meets a challenge, the server asks the solver to load the page. It keeps the cookies that the solver earned and tries the request once more.
 
 To run a browser in the server, use a `-browser` image and give the container 1 GB of shared memory with `shm_size: 1gb`. These images include Chromium, for extensions that use interactive pages. Chromium's own sandbox is off in these images, so run only extensions that you trust.
+
+On its first start, a `-browser` image downloads [CloakBrowser](https://cloakbrowser.dev), a Chromium build that passes Cloudflare's Turnstile check without a person. Its license doesn't allow it in the image. The server saves it in `CHEK_BROWSER_DIR`, which is `/data/.cloakbrowser` by default, and checks it against a checksum that the release pins. The container needs to reach `cloakbrowser.dev` for that download. If the download fails, the server uses the image's own Chromium. A new release that pins a newer CloakBrowser replaces the saved copy on its next start. To keep your own browser, set `CHEK_BROWSER_EXECUTABLE`.
+
+Only one call per source and user opens a browser at a time. Other calls that need one wait for it to close and then use the cookies that it earned.
 
 A signed-in user can also complete a site's checkbox challenge by hand. The user opens `/verify` on the server and picks an installed source. The server keeps the cookies in the data folder until the site expires them.
 

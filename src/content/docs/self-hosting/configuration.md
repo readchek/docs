@@ -55,9 +55,10 @@ Each provider in `CHEK_OIDC_PROVIDERS` takes the variables below. In each name, 
 | `CHEK_SOURCE_SYNC_MINUTES` | `60` | Minutes between syncs of Komga, Kavita, and extension libraries. `0` turns off the timer |
 | `CHEK_EXTENSION_IMAGE_CACHE_MB` | `2048` | The size of the disk cache for images from extensions, in MB. `0` turns off the cache |
 | `CHEK_BROWSER_SOLVER_URL` | None | The address of a FlareSolverr-compatible service |
-| `CHEK_BROWSER_EXECUTABLE` | None. In `-browser` images, `/usr/bin/chromium` | The absolute path to Chromium |
+| `CHEK_BROWSER_EXECUTABLE` | None. In `-browser` images, CloakBrowser in `CHEK_BROWSER_DIR`, or `/usr/bin/chromium` if it isn't installed | The absolute path to Chromium. A `-browser` image keeps a path that you set and doesn't download CloakBrowser into its place |
 | `CHEK_BROWSER_NATIVE` | `false`. In `-browser` images, `true` | Whether Chromium makes its own connections through a restricted proxy |
-| `CHEK_BROWSER_ARGS` | `["--headless=new"]` | Chromium launch arguments, as a JSON array |
+| `CHEK_BROWSER_ARGS` | `["--headless=new"]`. In `-browser` images, `["--no-sandbox","--disable-blink-features=AutomationControlled","--fingerprint-platform=windows"]` | Chromium launch arguments, as a JSON array |
+| `CHEK_BROWSER_DIR` | `/data/.cloakbrowser` | In `-browser` images, the folder that CloakBrowser is downloaded into |
 | `CHEK_OUTBOUND_PROXY_URL` | None | The address of an HTTP CONNECT proxy for all extension traffic |
 | `CHEK_OUTBOUND_PROXY_USERNAME` | None | The proxy's user name. Set it with `CHEK_OUTBOUND_PROXY_PASSWORD` |
 | `CHEK_OUTBOUND_PROXY_PASSWORD` | None | The proxy's password. Set it with `CHEK_OUTBOUND_PROXY_USERNAME` |
