@@ -5,7 +5,7 @@ import starlightOpenAPI, { openAPISidebarGroups } from "starlight-openapi"
 // The server release these pages describe. The API reference is built from
 // that release's openapi.yaml, so raise this when the guides catch up with a
 // new release, not before.
-const chekRelease = "0.5.0"
+const chekRelease = "0.5.1"
 
 export default defineConfig({
   site: "https://docs.chek.page",
