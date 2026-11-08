@@ -1,6 +1,6 @@
 ---
 title: Run extensions
-description: Add extension repositories, turn extensions into libraries, and set up challenge solving and an outbound proxy.
+description: Add extension repositories, turn extensions into libraries, show readers' comments, and set up challenge solving and an outbound proxy.
 ---
 
 An extension is a source that the server reads series from, such as a webcomic's site or a library of public-domain books. Each extension is a WebAssembly component. The server runs it in a sandbox with no file access and no network access except to the sites that the extension declares.
@@ -53,6 +53,20 @@ Each person chooses the content ratings they see. The ratings are Safe, Suggesti
 Until a person chooses, the person sees Safe and Suggestive. Demo accounts always see Safe and Suggestive.
 
 In the iOS app, a person can only narrow the choice. To turn on Erotica and Pornographic, the person confirms their age in the web app at [app.chek.page](https://app.chek.page).
+
+## Show readers' comments from sites
+
+An extension can pass on the comments that readers left under a chapter on its site. Chek shows them in the reader, read-only. No one can post, reply or vote from Chek.
+
+Comments are off on every server until an admin turns them on. To turn them on, open **Extensions** in the admin panel and turn on **Show comments from sites**. With the API, turn on `extensionComments`:
+
+```sh
+curl -X PUT $SERVER/api/v1/settings \
+	-H "Authorization: Bearer $TOKEN" -H 'content-type: application/json' \
+	-d '{"extensionComments": true}'
+```
+
+Only extensions from server-wide repositories show comments. An extension from a personal repository never does, whatever the setting says. Each reader can turn comments off for themselves in the app, and hide the comments of anyone they choose. To report a comment, a reader opens it on its site from the comment's menu, because the site hosts the comments and Chek keeps no copy.
 
 ## Size the image cache
 
