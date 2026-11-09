@@ -54,6 +54,10 @@ When you add the library, the server checks the address and the credentials. If 
 
 The site may show a browser challenge. Follow [Let extensions get past site challenges](/self-hosting/extensions/#let-extensions-get-past-site-challenges). If verification works but requests still fail, the site may block your server's outbound address.
 
+## An extension needs a newer Chek
+
+An extension's newer versions can need a newer server than yours. The app then says which release they need, and the API answers `422 extension_needs_newer_server`. To get those versions, update the server. Read [Match extensions to your server version](/self-hosting/extensions/#match-extensions-to-your-server-version).
+
 ## Report a problem
 
 To report a problem, fill in the [problem form on readchek/chek](https://github.com/readchek/chek/issues/new?template=bug.yml). Problems with the app, the web app, the server and extensions all go there. The form asks for the server version, how you run the server, and the log lines around the problem. Remove tokens and passwords from the logs first.
