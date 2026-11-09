@@ -37,6 +37,15 @@ Each user installs extensions for themselves. When a user installs one, the serv
 
 Because of the second check, a repository can't list one extension and ship another. The server stores components in the data folder under `extensions/`. Users on the same version share one copy.
 
+## Match extensions to your server version
+
+Each version of an extension can name the oldest Chek release that runs it, in its `minServer` field. A repository can also keep older versions of an extension for older servers. The server always installs the newest version that it can run.
+
+- If a newer version needs a newer server, the app shows the version and the release it needs. The server doesn't offer that version as an update.
+- If no version runs on your server, the app shows the release it needs and can't add the extension. The API answers `422 extension_needs_newer_server`, and the message names the release.
+
+To get the newer versions, [update to a new release](/self-hosting/updating-and-backups/#update-to-a-new-release).
+
 ## Turn an extension into a library
 
 An admin can make a library from an extension that the admin installed. An admin grants the library to readers like any other library.
