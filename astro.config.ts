@@ -57,6 +57,10 @@ export default defineConfig({
           items: ["extensions/write-a-source", "extensions/publish-a-repository"],
         },
         {
+          label: "Chek Reader",
+          items: ["reader/apple", "reader/web"],
+        },
+        {
           label: "API",
           items: ["api/overview", "api/reading", ...openAPISidebarGroups],
         },
