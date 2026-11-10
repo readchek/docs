@@ -5,7 +5,7 @@ description: Add extension repositories, turn extensions into libraries, show re
 
 An extension is a source that the server reads series from, such as a webcomic's site or a library of public-domain books. Each extension is a WebAssembly component. The server runs it in a sandbox with no file access and no network access except to the sites that the extension declares.
 
-This page is about running extensions on your server. To write one, read the [extension README](https://github.com/readchek/chek/blob/main/extensions/README.md).
+This page is about running extensions on your server. To write one, read [Write a source](/extensions/write-a-source/).
 
 Most people manage repositories and installs in the Chek app, so they never call the endpoints on this page. Admins manage server-wide repositories in the admin panel, under **Extensions**.
 

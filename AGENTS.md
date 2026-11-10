@@ -20,6 +20,7 @@ The public developer documentation for Chek, served at docs.chek.page. It's for 
 | --- | --- |
 | `src/content/docs/get-started` | What Chek is and the quick start |
 | `src/content/docs/self-hosting` | Installing, configuring and running Chek server |
+| `src/content/docs/extensions` | Writing a source extension and publishing a repository |
 | `src/content/docs/api` | API guides. The reference under `/api/reference` is generated |
 | `astro.config.ts` | Site config, sidebar and the pinned chek release |
 | `scripts/cloudflare.ts` | Turns the static build into Cloudflare's prebuilt output |

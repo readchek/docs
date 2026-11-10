@@ -53,6 +53,10 @@ export default defineConfig({
           ],
         },
         {
+          label: "Extensions",
+          items: ["extensions/write-a-source", "extensions/publish-a-repository"],
+        },
+        {
           label: "API",
           items: ["api/overview", "api/reading", ...openAPISidebarGroups],
         },
